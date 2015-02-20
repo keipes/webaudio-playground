@@ -1,25 +1,42 @@
-function doAnnoyingStuff() {
+function initAudio() {
 	var audioCtx = new AudioContext();
-
-	var osc1 = audioCtx.createOscillator();
-	var osc2 = audioCtx.createOscillator();
-	var osc3 = audioCtx.createOscillator();
 
 	var gainNode = audioCtx.createGain();
 
-	osc1.frequency.value = 441;
-	osc2.frequency.value = 40;
-	osc3.frequency.value = 409;
-
-	osc1.connect(gainNode);
-	osc2.connect(gainNode);
-	osc3.connect(gainNode);
+	for (var i = 0; i < numOscillators; i ++) {
+		doMeANewOscillator(audioCtx, gainNode, 40);
+	}
+	// doMeANewOscillator(audioCtx, gainNode, 40);
+	// doMeANewOscillator(audioCtx, gainNode, 200);
+	// doMeANewOscillator(audioCtx, gainNode, 300);
+	// doMeANewOscillator(audioCtx, gainNode, 440);
 
 	gainNode.connect(audioCtx.destination);
 
-	osc1.start();
-	osc2.start();
-	osc3.start();
 }
 
-doAnnoyingStuff();
+function doMeANewOscillator(audioCtx, gainNode, frequency) {
+	var oscillator = audioCtx.createOscillator();
+	oscillator.frequency.value = frequency;
+	oscillator.connect(gainNode);
+	oscillator.start();
+	oscillators.push(oscillator);
+}
+
+var oscillators = [];
+
+var tonalRange = [30, 600];
+var spreadRange = [1, 10];
+var numOscillators = 3;
+
+addEventListener("mousemove", function(e) {
+	var rootFrequency = (e.x / window.innerWidth) * (tonalRange[1] - tonalRange[0]) + tonalRange[0];
+	var spread = (e.y / window.innerHeight) * (spreadRange[1] - spreadRange[0]) + spreadRange[0];
+	console.log(rootFrequency);
+	for (var i = 0; i < oscillators.length; i++) {
+		oscillator = oscillators[i];
+		oscillator.frequency.value = rootFrequency + (i * spread);
+	}
+});
+
+initAudio();
